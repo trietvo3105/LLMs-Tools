@@ -20,18 +20,41 @@ Then before using each tool, please activate the environment by:
 conda activate llms
 ```
 
-As mentioned above, API key is required to run the tools, so one must create a .env in the root directory. **The filename must be exactly .env**. Then copy the API into it.
+As mentioned above, API key is required to run the tools, so one must create a .env in the root directory. **The filename must be exactly .env**. Then copy the API key into it.
 
 For examle: for OpenAI API key, create this line in .env file:
 ```
-OPENAI_API_KEY=sk-proj-abcse
+OPENAI_API_KEY=API_KEY_goes_here
 ```
 
 ## 1. Website summarizer
+**<u>Usage:</u>**
+
 ```
-Usage: python web_summarize.py website_url_goes_here
+python Web-summarizer/web_summarize.py website_url_goes_here
 ```
 As its name, this tool will analyze and summarize the content of a (public) website using **GPT-4o-mini** model. Using GPT-4o-mini means that the tool requires you to have a positive credit in the OpenAI API account, but it will charge you a very very small amount of your credit for every time the tool is called.
 
 The result should be somehthing like this:
 ![web_summarize_result](./images/web_summarizer_result.jpeg)
+
+## 2. CV analyzer based on Job Description
+**<u>Usage:</u>**
+
+```
+python CV-Job-analyzer/web_summarize.py
+```
+As its name, this tool will give you the ability to paste in a job description and upload a CV in pdf. 
+
+It will then analyze the CV according to the job description and the output some interesting results: 
+
+- Job description summary
+- Identification of skill matches and lackings
+- Comparison of keywords between the CV and the job description
+- Possible CV improvements
+- Good-fit scoring
+- Tailored feedbacks
+- Insights on the market trends of that job domain
+
+The result should be somehthing like this:
+![cv_job_analyze_result](./images/cv_analyzed_result.jpeg)

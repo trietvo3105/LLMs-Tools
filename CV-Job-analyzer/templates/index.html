@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text and PDF Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+
+        label {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        textarea {
+            width: 80%;
+            height: 150px;
+            font-size: 1.2em;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .submitted-content {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .submitted-content h2 {
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        .submitted-content pre {
+            font-size: 1.2em;
+            color: #555;
+            white-space: pre-wrap;
+            /* Preserve whitespace and wrap text */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Analyze CV based on Job Description</h1>
+
+    <!-- Text Input Form -->
+    <form method="POST">
+        <label for="text_input">Enter the job description:</label>
+        <textarea id="text_input" name="text_input" placeholder="Paste job description here..."></textarea>
+        <button type="submit" name="text_submit">Submit Description</button>
+    </form>
+
+    <!-- PDF Upload Form -->
+    <form method="POST" enctype="multipart/form-data">
+        <label for="pdf_file">Upload a CV (.pdf):</label>
+        <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf">
+        <button type="submit" name="pdf_submit">Upload CV</button>
+    </form>
+
+    <!-- Display Submitted Text -->
+    {% if analyze_result %}
+    <div class="submitted-content">
+        <h2>CV analyzing result according to the job description:</h2>
+        <pre>{{ analyze_result|safe }}</pre>
+    </div>
+    {% endif %}
+
+    <!-- Display PDF File Info -->
+    {% if pdf_file %}
+    <div class="submitted-content">
+        <h2>Uploaded CV File:</h2>
+        <p>Filename: {{ pdf_file.filename }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Display Submitted Text -->
+    {% if text_content %}
+    <div class="submitted-content">
+        <h2>Job description:</h2>
+        <pre>{{ text_content }}</pre>
+    </div>
+    {% endif %}
+
+</body>
+
+</html>
