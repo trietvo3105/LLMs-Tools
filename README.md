@@ -20,11 +20,11 @@ Then before using each tool, please activate the environment by:
 conda activate llms
 ```
 
-As mentioned above, API key is required to run the tools, so one must create a .env in the root directory. **The filename must be exactly .env**. Then copy the API into it.
+As mentioned above, API key is required to run the tools, so one must create a .env in the root directory. **The filename must be exactly .env**. Then copy the API key into it.
 
 For examle: for OpenAI API key, create this line in .env file:
 ```
-OPENAI_API_KEY=sk-proj-abcse
+OPENAI_API_KEY=API_KEY_goes_here
 ```
 
 ## 1. Website summarizer
