@@ -1,12 +1,10 @@
 import os
+import sys
 import re
 import markdown2
-import threading
 import argparse
 import time
-
-from openai import OpenAI
-from dotenv import load_dotenv
+from pathlib import Path
 
 from flask import Flask, render_template_string
 from selenium import webdriver
@@ -14,6 +12,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
 from base.base_class import BasePromptGenerator
 
 
@@ -132,7 +134,7 @@ class RenderWebsiteAndSummary:
             time.sleep(2)  # Wait for the page to load
 
             # Take a screenshot of the website
-            screenshot_dir = os.path.join(os.getcwd(), "static")
+            screenshot_dir = FILE.parent / "static"
             if not os.path.exists(screenshot_dir):
                 print("Creating 'static' folder for website screenshot")
                 os.makedirs(screenshot_dir)

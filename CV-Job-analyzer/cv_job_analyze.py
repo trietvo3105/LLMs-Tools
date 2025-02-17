@@ -1,14 +1,17 @@
 import os
+import sys
 import re
 import argparse
-
-from openai import OpenAI
-from dotenv import load_dotenv
+from pathlib import Path
 
 from flask import Flask, render_template, request
 from PyPDF2 import PdfReader
 from markdown2 import markdown
 
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
 from base.base_class import BasePromptGenerator
 
 
