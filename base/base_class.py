@@ -11,7 +11,9 @@ class BasePromptGenerator:
         self.infer_locally = False
         if api_key == "ollama":
             print(f"Using local model for inference with api_key = {api_key}")
-            subprocess.run(["ollama", "serve"])
+            subprocess.Popen(
+                ["ollama", "serve"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
             try:
                 self.openai = OpenAI(
                     base_url="http://localhost:11434/v1", api_key=api_key
