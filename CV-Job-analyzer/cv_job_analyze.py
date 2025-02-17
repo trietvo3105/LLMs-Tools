@@ -1,5 +1,6 @@
 import os
 import re
+import argparse
 
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -12,9 +13,8 @@ from base.base_class import BasePromptGenerator
 
 
 class CvJobDescriptionAnalyzer(BasePromptGenerator):
-    def __init__(self, openai):
-        super().__init__()
-        self.openai = openai
+    def __init__(self, model_name="gpt-4o-mini", api_key=None):
+        super().__init__(model_name=model_name, api_key=api_key)
         self.system_prompt = """
         You are an assistant whose job is to analyze a CV and a job description, \
             then provide a feedback on how well the CV is aligned with \
@@ -74,22 +74,33 @@ class CvJobDescriptionAnalyzer(BasePromptGenerator):
             print("Problem with user prompt")
             exit(0)
         message = self.create_message(self.system_prompt, self.user_prompt)
-        response = self.openai.chat.completions.create(
-            model="gpt-4o-mini", messages=message
-        )
-        self.analyze_result = response.choices[0].message.content
+        self.analyze_result = self.inference(self.model_name, message)
         return self.analyze_result
 
 
-def main():
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-    if (not api_key) or (not api_key.startswith("sk-proj")):
-        print(f"Problem with OpenAI API Key, please check it, key = {api_key}")
-        exit(0)
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Analyze a CV according to a job description"
+    )
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="gpt-4o-mini",
+        help="Model name for text generation, currently support OpenAI GPT and open-source Ollama (need to use 'ollama' api key) models, default is gpt-4o-mini",
+    )
+    parser.add_argument(
+        "--api_key",
+        type=str,
+        default=None,
+        help="API key for Ollama models, i.e. 'ollama', default is None to use your own API Key",
+    )
 
-    openai = OpenAI()
-    cv_job_analyzer = CvJobDescriptionAnalyzer(openai)
+    args = parser.parse_args()
+    return args
+
+
+def main(model_name, api_key):
+    cv_job_analyzer = CvJobDescriptionAnalyzer(model_name, api_key)
 
     app = Flask(__name__)
 
@@ -124,4 +135,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(**vars(args))

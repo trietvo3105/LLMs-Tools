@@ -31,7 +31,7 @@ OPENAI_API_KEY=API_KEY_goes_here
 **<u>Usage:</u>**
 
 ```
-python Web-summarizer/web_summarize.py website_url_goes_here
+python Web-summarizer/web_summarize.py website_url_goes_here --model_name gpt-4o-mini|llama3.2|deepseek-r1:1.5b|etc. --api_key ollama(if specify open-source models in --model_name)
 ```
 As its name, this tool will analyze and summarize the content of a (public) website using **GPT-4o-mini** model. Using GPT-4o-mini means that the tool requires you to have a positive credit in the OpenAI API account, but it will charge you a very very small amount of your credit for every time the tool is called.
 
@@ -42,7 +42,7 @@ The result should be somehthing like this:
 **<u>Usage:</u>**
 
 ```
-python CV-Job-analyzer/web_summarize.py
+python CV-Job-analyzer/web_summarize.py --model_name gpt-4o-mini|llama3.2|deepseek-r1:1.5b|etc. --api_key ollama(if specify open-source models in --model_name)
 ```
 As its name, this tool will give you the ability to paste in a job description and upload a CV in pdf. 
 

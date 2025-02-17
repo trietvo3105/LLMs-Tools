@@ -16,18 +16,10 @@ from bs4 import BeautifulSoup
 
 from base.base_class import BasePromptGenerator
 
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-if (not api_key) or (not api_key.startswith("sk-proj")):
-    print(f"Problem with OpenAI API Key, please check it, key = {api_key}")
-    exit(0)
-else:
-    openai = OpenAI()
-
 
 class WebsiteSummarizer(BasePromptGenerator):
-    def __init__(self, url):
-        super().__init__()
+    def __init__(self, url, model_name="gpt-4o-mini", api_key=None):
+        super().__init__(model_name=model_name, api_key=api_key)
         self.url = url
         self.title = "No title found"
         self.content = "No content found"
@@ -70,16 +62,7 @@ class WebsiteSummarizer(BasePromptGenerator):
         message = self.create_message(
             self.system_prompt, self.get_user_prompt(self.url, self.title, self.content)
         )
-        response = openai.chat.completions.create(model="gpt-4o-mini", messages=message)
-        summary = response.choices[0].message.content
-        return summary
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Summarize a website")
-    parser.add_argument("url", type=str, help="Website url")
-    args = parser.parse_args()
-    return args
+        return self.inference(self.model_name, message)
 
 
 class RenderWebsiteAndSummary:
@@ -168,9 +151,29 @@ class RenderWebsiteAndSummary:
         self.app.run(debug=True)
 
 
-def main(url):
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Summarize a website")
+    parser.add_argument("url", type=str, help="Website url")
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="gpt-4o-mini",
+        help="Model name for text generation, currently support OpenAI GPT and open-source Ollama (need to use 'ollama' api key) models, default is gpt-4o-mini",
+    )
+    parser.add_argument(
+        "--api_key",
+        type=str,
+        default=None,
+        help="API key for Ollama models, i.e. 'ollama', default is None to use your own API Key",
+    )
+
+    args = parser.parse_args()
+    return args
+
+
+def main(url, model_name, api_key):
     # Scrape the website and generate a summary
-    web_summarizer = WebsiteSummarizer(url)
+    web_summarizer = WebsiteSummarizer(url, model_name, api_key)
     summary = web_summarizer.get_summary()
     # summary = """
     # # Summary Title
