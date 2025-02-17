@@ -14,6 +14,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 
+from base.base_class import BasePromptGenerator
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -24,8 +25,9 @@ else:
     openai = OpenAI()
 
 
-class WebsiteSummarizer:
+class WebsiteSummarizer(BasePromptGenerator):
     def __init__(self, url):
+        super().__init__()
         self.url = url
         self.title = "No title found"
         self.content = "No content found"
@@ -62,13 +64,6 @@ class WebsiteSummarizer:
         Its title is {title}. Its content is as following: \n\
         {content}."
         return user_prompt
-
-    def create_message(self, system_prompt, user_prompt):
-        msg = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ]
-        return msg
 
     def get_summary(self):
         self.scrape_website()

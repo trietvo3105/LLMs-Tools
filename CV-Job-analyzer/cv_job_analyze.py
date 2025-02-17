@@ -8,9 +8,12 @@ from flask import Flask, render_template, request
 from PyPDF2 import PdfReader
 from markdown2 import markdown
 
+from base.base_class import BasePromptGenerator
 
-class CvJobDescriptionAnalyzer:
+
+class CvJobDescriptionAnalyzer(BasePromptGenerator):
     def __init__(self, openai):
+        super().__init__()
         self.openai = openai
         self.system_prompt = """
         You are an assistant whose job is to analyze a CV and a job description, \
@@ -64,12 +67,6 @@ class CvJobDescriptionAnalyzer:
         """
 
         return re.sub(r"[ \t]+", " ", user_prompt)
-
-    def create_message(self, system_prompt, user_prompt):
-        return [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ]
 
     def analyze(self):
         self.user_prompt = self.get_user_prompt(self.job_desc, self.cv_content)
