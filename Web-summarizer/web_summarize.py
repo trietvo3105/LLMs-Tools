@@ -6,7 +6,7 @@ import argparse
 import time
 from pathlib import Path
 
-from flask import Flask, render_template_string
+from flask import Flask, render_template, Response
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -17,6 +17,7 @@ ROOT = FILE.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 from base.base_class import BasePromptGenerator
+from base.utils import get_stream
 
 
 class WebsiteSummarizer(BasePromptGenerator):
@@ -68,85 +69,48 @@ class WebsiteSummarizer(BasePromptGenerator):
 
 
 class RenderWebsiteAndSummary:
-    def __init__(self, url, summary_md):
+    def __init__(self, url, summary_response_from_model):
         self.url = url
+        self.get_website_screenshot()
         # Convert summary markdown to HTML
-        self.summary_html = markdown2.markdown(summary_md)
-        # Template of the render
-        self.html_template = """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Website and Summary</title>
-                <style>
-                    .container {
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: space-between;
-                    }
-                    .website, .summary {
-                        width: 48%;
-                    }
-                    .website img {
-                        width: 100%;
-                        height: auto;
-                    }
-                    .summary {
-                        padding: 10px;
-                        border: 1px solid #ccc;
-                        background-color: #f9f9f9;
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>Website and Summary</h1>
-                <div class="container">
-                    <div class="website">
-                        <h2>Website Screenshot</h2>
-                        <img src="{{ url_for('static', filename='website_screenshot.png') }}" alt="Website Screenshot">
-                    </div>
-                    <div class="summary">
-                        <h2>Summary</h2>
-                        {{ summary_html|safe }}
-                    </div>
-                </div>
-            </body>
-            </html>
-        """
+        if isinstance(summary_response_from_model, str):
+            self.summary_html = markdown2.markdown(summary_response_from_model)
+        else:
+            self.summary_html = ""
+
         self.app = Flask(__name__)
 
         @self.app.route("/")
         def render_side_by_side():
-            # Set up Selenium WebDriver
-            options = webdriver.ChromeOptions()
-            options.add_argument("--headless")  # Run in headless mode
-            options.add_argument("--disable-gpu")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-
-            # Initialize the WebDriver
-            driver = webdriver.Chrome(service=Service(), options=options)
-
-            # Open the website
-            driver.get(self.url)
-            time.sleep(2)  # Wait for the page to load
-
-            # Take a screenshot of the website
-            screenshot_dir = FILE.parent / "static"
-            if not os.path.exists(screenshot_dir):
-                print("Creating 'static' folder for website screenshot")
-                os.makedirs(screenshot_dir)
-            screenshot_path = os.path.join(screenshot_dir, "website_screenshot.png")
-            driver.save_screenshot(screenshot_path)
-            driver.quit()
-
             # Render the template with the screenshot and summary
-            return render_template_string(
-                self.html_template,
+            return render_template(
+                "index.html",
                 summary_html=self.summary_html,
             )
+
+    def get_website_screenshot(self):
+        # Set up Selenium WebDriver
+        options = Options()
+        options.add_argument("--headless")  # Run in headless mode
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        # Initialize the WebDriver
+        driver = webdriver.Chrome(service=Service(), options=options)
+
+        # Open the website
+        driver.get(self.url)
+        time.sleep(2)  # Wait for the page to load
+
+        # Take a screenshot of the website
+        screenshot_dir = FILE.parent / "static"
+        if not os.path.exists(screenshot_dir):
+            print("Creating 'static' folder for website screenshot")
+            os.makedirs(screenshot_dir)
+        screenshot_path = os.path.join(screenshot_dir, "website_screenshot.png")
+        driver.save_screenshot(screenshot_path)
+        driver.quit()
 
     def render(self):
         """Run Flask server"""
@@ -176,7 +140,7 @@ def parse_arguments():
 def main(url, model_name, api_key):
     # Scrape the website and generate a summary
     web_summarizer = WebsiteSummarizer(url, model_name, api_key)
-    summary = web_summarizer.get_summary()
+    # summary = web_summarizer.get_summary()
     # summary = """
     # # Summary Title
     # This is a **Markdown** formatted summary.
@@ -184,6 +148,13 @@ def main(url, model_name, api_key):
     # - Bullet point 1
     # - Bullet point 2
     # """
+    summary = [
+        "Hello, ",
+        "this is a ",
+        "streaming ",
+        "response ",
+        "from the API.",
+    ]
 
     # Convert Markdown to HTML
     summary_renderer = RenderWebsiteAndSummary(url, summary)

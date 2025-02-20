@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website and Summary</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .website,
+        .summary {
+            width: 48%;
+        }
+
+        .website img {
+            width: 100%;
+            height: auto;
+        }
+
+        .summary {
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Website and Summary</h1>
+    <div class="container">
+        <div class="website">
+            <h2>Website Screenshot</h2>
+            <img src="{{ url_for('static', filename='website_screenshot.png') }}" alt="Website Screenshot">
+        </div>
+        <div class="summary">
+            <h2>Summary</h2>
+            {{ summary_html|safe }}
+        </div>
+    </div>
+</body>
+
+</html>
