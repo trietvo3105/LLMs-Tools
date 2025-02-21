@@ -41,6 +41,7 @@ class WebsiteSummarizer(BasePromptGenerator):
     def scrape_website(self):
         # Selenium
         options = Options()
+        options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         driver = webdriver.Chrome(options=options)
@@ -60,12 +61,12 @@ class WebsiteSummarizer(BasePromptGenerator):
         {content}."
         return user_prompt
 
-    def get_summary(self):
+    def get_summary(self, stream=False):
         self.scrape_website()
         message = self.create_message(
             self.system_prompt, self.get_user_prompt(self.url, self.title, self.content)
         )
-        return self.inference(self.model_name, message)
+        return self.inference(self.model_name, message, stream=stream)
 
 
 class RenderWebsiteAndSummary:
@@ -76,7 +77,7 @@ class RenderWebsiteAndSummary:
         if isinstance(summary_response_from_model, str):
             self.summary_html = markdown2.markdown(summary_response_from_model)
         else:
-            self.summary_html = ""
+            self.summary_html = summary_response_from_model  # ""
 
         self.app = Flask(__name__)
 
@@ -87,6 +88,10 @@ class RenderWebsiteAndSummary:
                 "index.html",
                 summary_html=self.summary_html,
             )
+
+        @self.app.route("/stream")
+        def stream():
+            return Response(get_stream(self.summary_html), mimetype="text/event-stream")
 
     def get_website_screenshot(self):
         # Set up Selenium WebDriver
@@ -140,21 +145,7 @@ def parse_arguments():
 def main(url, model_name, api_key):
     # Scrape the website and generate a summary
     web_summarizer = WebsiteSummarizer(url, model_name, api_key)
-    # summary = web_summarizer.get_summary()
-    # summary = """
-    # # Summary Title
-    # This is a **Markdown** formatted summary.
-
-    # - Bullet point 1
-    # - Bullet point 2
-    # """
-    summary = [
-        "Hello, ",
-        "this is a ",
-        "streaming ",
-        "response ",
-        "from the API.",
-    ]
+    summary = web_summarizer.get_summary(stream=True)
 
     # Convert Markdown to HTML
     summary_renderer = RenderWebsiteAndSummary(url, summary)

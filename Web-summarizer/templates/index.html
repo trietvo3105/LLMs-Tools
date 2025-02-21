@@ -28,6 +28,22 @@
             background-color: #f9f9f9;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const eventSource = new EventSource("/stream");
+            const responseDiv = document.getElementById("response");
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                responseDiv.innerHTML = data.content; // Append streamed content
+            };
+
+            eventSource.onerror = function () {
+                eventSource.close(); // Stop the stream on error
+            };
+        });
+    </script>
 </head>
 
 <body>
@@ -39,7 +55,8 @@
         </div>
         <div class="summary">
             <h2>Summary</h2>
-            {{ summary_html|safe }}
+            <!-- {{ summary_html|safe }} -->
+            <div id="response" style="border: 1px solid #ddd; padding: 10px; min-height: 50px;"></div>
         </div>
     </div>
 </body>
