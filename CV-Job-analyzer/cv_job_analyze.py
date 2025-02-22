@@ -4,7 +4,7 @@ import re
 import argparse
 from pathlib import Path
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 from PyPDF2 import PdfReader
 from markdown2 import markdown
 
@@ -13,6 +13,7 @@ ROOT = FILE.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 from base.base_class import BasePromptGenerator
+from base.utils import get_stream
 
 
 class CvJobDescriptionAnalyzer(BasePromptGenerator):
@@ -41,7 +42,7 @@ class CvJobDescriptionAnalyzer(BasePromptGenerator):
             such as in-demand skills and salary ranges.
         Provide responses that are concise, clear, and to the point. Respond in markdown.
         """
-        self.system_prompt = re.sub(r"[ \t]+", " ", self.system_prompt)
+        self.system_prompt = re.sub(r"\t+| {2,}", " ", self.system_prompt)
         self.user_prompt = None
         self.job_desc = None
         self.cv_content = None
@@ -71,13 +72,13 @@ class CvJobDescriptionAnalyzer(BasePromptGenerator):
 
         return re.sub(r"[ \t]+", " ", user_prompt)
 
-    def analyze(self):
+    def analyze(self, stream=False):
         self.user_prompt = self.get_user_prompt(self.job_desc, self.cv_content)
         if self.user_prompt is None:
             print("Problem with user prompt")
             exit(0)
         message = self.create_message(self.system_prompt, self.user_prompt)
-        self.analyze_result = self.inference(self.model_name, message)
+        self.analyze_result = self.inference(self.model_name, message, stream)
         return self.analyze_result
 
 
@@ -118,21 +119,25 @@ def main(model_name, api_key):
             if (cv_job_analyzer.job_desc is not None) and (
                 cv_job_analyzer.cv_content is not None
             ):
-                cv_job_analyzer.analyze()
+                cv_job_analyzer.analyze(stream=True)
                 cv_job_analyzer.get_job_description(None)
                 cv_job_analyzer.get_cv_content(None)
 
-        analyze_result = (
-            markdown(cv_job_analyzer.analyze_result)
-            if cv_job_analyzer.analyze_result
-            else None
-        )
         return render_template(
             "index.html",
             text_content=cv_job_analyzer.job_desc,
             pdf_file=cv_job_analyzer.cv_file,
-            analyze_result=analyze_result,
+            # analyze_result=analyze_result,
         )
+
+    @app.route("/stream")
+    def stream():
+        analyze_result = (
+            get_stream(cv_job_analyzer.analyze_result)
+            if cv_job_analyzer.analyze_result
+            else None
+        )
+        return Response(analyze_result, mimetype="text/event-stream")
 
     app.run(debug=True)
 

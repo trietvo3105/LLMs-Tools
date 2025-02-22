@@ -74,6 +74,22 @@
             /* Preserve whitespace and wrap text */
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const eventSource = new EventSource("/stream");
+            const responseDiv = document.getElementById("response");
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                responseDiv.innerHTML = data.content; // Append streamed content
+            };
+
+            eventSource.onerror = function () {
+                eventSource.close(); // Stop the stream on error
+            };
+        });
+    </script>
 </head>
 
 <body>
@@ -94,12 +110,16 @@
     </form>
 
     <!-- Display Submitted Text -->
-    {% if analyze_result %}
+    <!-- {% if analyze_result %}
     <div class="submitted-content">
         <h2>CV analyzing result according to the job description:</h2>
         <pre>{{ analyze_result|safe }}</pre>
     </div>
-    {% endif %}
+    {% endif %} -->
+    <div class="submitted-content">
+        <h2>CV analyzing result according to the job description:</h2>
+        <div id="response" style="border: 1px solid #ddd; padding: 10px; min-height: 50px;"></div>
+    </div>
 
     <!-- Display PDF File Info -->
     {% if pdf_file %}
