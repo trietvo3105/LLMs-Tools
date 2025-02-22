@@ -139,7 +139,7 @@ def main(model_name, api_key):
         )
         return Response(analyze_result, mimetype="text/event-stream")
 
-    app.run(debug=True)
+    app.run()
 
 
 if __name__ == "__main__":
