@@ -47,7 +47,7 @@ class BasePromptGenerator:
             {"role": "user", "content": user_prompt},
         ]
 
-    def inference(self, model_name, message, stream=False):
+    def inference(self, model_name, message, stream=False, response_format=None):
         print(f"Inference with model {model_name}")
         if self.infer_locally and (not model_name in ollama.list()["models"]):
             print(
@@ -56,7 +56,10 @@ class BasePromptGenerator:
             subprocess.run(["ollama", "pull", model_name])
 
         response = self.openai.chat.completions.create(
-            model=model_name, messages=message, stream=stream
+            model=model_name,
+            messages=message,
+            stream=stream,
+            response_format=response_format,
         )
         if stream:
             return response
