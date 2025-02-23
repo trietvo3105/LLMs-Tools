@@ -2,6 +2,11 @@
 
 This is a repository with different tools that use LLM to perform tasks like website summarizing, cover letter writing (from the resume and job description), etc.
 
+## Table of Contents
+1. [Website summarizer](#1-website-summarizer)
+2. [CV analyzer based on Job Description](#2-cv-analyzer-based-on-job-description)
+3. [AI tutor](#3-ai-tutor)
+
 ## Important note
 Pretty much all of the tools use APIs to call models from OpenAI or Anthropic. If the API call is for a closed-source model, the user must have an API key and some credit in his/her account.
 
