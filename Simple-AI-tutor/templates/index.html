@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background: #f9f9f9;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: #007bff;
+            color: white;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: #e0e0e0;
+            color: black;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ccc;
+        }
+
+        textarea {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chat-container" id="chatContainer"></div>
+
+    <div class="input-container">
+        <textarea id="userInput" placeholder="Type your message..."></textarea>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+
+    <script>
+        document.getElementById("userInput").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                if (event.shiftKey) {
+                    // Shift+Enter inserts a new line
+                    event.preventDefault();
+                    let textarea = this;
+                    let start = textarea.selectionStart;
+                    let end = textarea.selectionEnd;
+                    textarea.value = textarea.value.substring(0, start) + "\n" + textarea.value.substring(end);
+                    textarea.selectionStart = textarea.selectionEnd = start + 1;
+                } else {
+                    // Enter sends the message
+                    event.preventDefault();
+                    sendMessage();
+                }
+            }
+        });
+
+        function sendMessage() {
+            let inputField = document.getElementById("userInput");
+            let text = inputField.value.trim();
+            if (text === "") return;
+
+            // Display user's message
+            addMessage(text, "user-message");
+
+            // Clear input field
+            inputField.value = "";
+
+            // First, send the message to /chat
+            fetch(`/chat?message=${encodeURIComponent(text)}`)
+                .then(() => {
+                    // Then, start streaming from /stream
+                    let eventSource = new EventSource(`/stream`);
+
+                    let botMessageDiv = document.createElement("div");
+                    botMessageDiv.classList.add("message", "bot-message");
+                    document.getElementById("chatContainer").appendChild(botMessageDiv);
+
+                    eventSource.onmessage = function (event) {
+                        botMessageDiv.innerHTML = JSON.parse(event.data).content;
+                        document.getElementById("chatContainer").scrollTop = document.getElementById("chatContainer").scrollHeight;
+                    };
+
+                    eventSource.onerror = function () {
+                        eventSource.close();
+                    };
+                });
+        }
+
+
+        function addMessage(text, className) {
+            let chatContainer = document.getElementById("chatContainer");
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", className);
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function streamResponse(stream) {
+            let chatContainer = document.getElementById("chatContainer");
+            let botMessageDiv = document.createElement("div");
+            botMessageDiv.classList.add("message", "bot-message");
+            chatContainer.appendChild(botMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const reader = stream.getReader();
+            let decoder = new TextDecoder();
+            let messageText = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                let chunk = decoder.decode(value, { stream: true });
+                messageText += chunk;
+                botMessageDiv.textContent = messageText;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 50)); // Typewriter effect delay
+            }
+        }
+    </script>
+
+</body>
+
+</html>

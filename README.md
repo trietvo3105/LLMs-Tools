@@ -58,3 +58,16 @@ It will then analyze the CV according to the job description and the output some
 
 The result should be somehthing like this:
 ![cv_job_analyze_result](./images/cv_analyzed_result.jpeg)
+
+## 3. AI tutor
+**<u>Usage:</u>**
+
+```
+python Simple-AI-tutor/ai_tutor.py --model_name gpt-4o-mini|llama3.2|deepseek-r1:1.5b|etc. --api_key ollama(if specify open-source models in --model_name)
+```
+This tool generates a chat interface that mimics well-known chat interfaces like ChatGPT that can answer your questions or messages but for now it doesn't have any memory of previous conversations and the generated response sometimes poorly for answer with corresponding code examples.
+
+➡ To be implemented in the future.
+
+The result should be somehthing like this:
+![ai_tutor_result](./images/ai_tutor_result.jpeg)
