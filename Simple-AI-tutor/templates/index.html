@@ -68,7 +68,7 @@
     <div class="input-container">
         <textarea id="userInput" placeholder="Type your message..."></textarea>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
         document.getElementById("userInput").addEventListener("keydown", function (event) {
@@ -111,7 +111,7 @@
                     document.getElementById("chatContainer").appendChild(botMessageDiv);
 
                     eventSource.onmessage = function (event) {
-                        botMessageDiv.innerHTML = JSON.parse(event.data).content;
+                        botMessageDiv.innerHTML = marked.parse(JSON.parse(event.data).content);
                         document.getElementById("chatContainer").scrollTop = document.getElementById("chatContainer").scrollHeight;
                     };
 

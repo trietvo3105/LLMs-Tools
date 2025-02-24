@@ -13,5 +13,5 @@ def get_stream(stream_from_api):
             time.sleep(0.05)
             text += chunk.choices[0].delta.content or ""
             # text.replace('```','').replace('markdown', '')
-        text_html = markdown2.markdown(text)
-        yield f"data: {json.dumps({'content': text_html})}\n\n"  # SSE format
+        # text_html = markdown2.markdown(text)
+        yield f"data: {json.dumps({'content': text})}\n\n"  # SSE format
