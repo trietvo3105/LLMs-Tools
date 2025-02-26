@@ -70,6 +70,7 @@ class AITutor(BasePromptGenerator):
         self.system_prompt = re.sub(r"\t+| {2,}", " ", self.system_prompt)
         self.last_question = None
         self.last_response = None
+        self.messages = [{"role": "system", "content": self.system_prompt}]
 
     def get_question(self, question):
         self.last_question = question
@@ -87,12 +88,13 @@ class AITutor(BasePromptGenerator):
         if self.last_question is None:
             return
 
-        message = self.create_message(
-            self.system_prompt, self.get_user_prompt(self.last_question)
+        self.messages.append(
+            {"role": "user", "content": self.get_user_prompt(self.last_question)}
         )
         self.last_response = self.inference(
-            model_name=self.model_name, message=message, stream=stream
+            model_name=self.model_name, message=self.messages, stream=stream
         )
+        self.messages.append({"role": "assistant", "content": self.last_response})
         return self.last_response
 
 
