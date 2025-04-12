@@ -68,7 +68,7 @@ def parse_arguments():
 
 
 def main(model_name, api_key):
-    tutor = AITutor(model_name=model_name, api_key=api_key, stream=False)
+    tutor = AITutor(model_name=model_name, api_key=api_key, stream=True)
 
     with gr.Blocks() as ui:
         chatbot = gr.Chatbot(type="messages")
