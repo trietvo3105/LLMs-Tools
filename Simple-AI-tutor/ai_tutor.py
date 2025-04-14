@@ -36,15 +36,10 @@ class AITutor(BasePromptGenerator):
         response = self.inference(
             model_name=self.model_name, message=messages, stream=self.stream
         )
-        if self.stream:
-            history += [{"role": "assistant", "content": ""}]
-            for chunk in response:
-                history[-1]["content"] += chunk.choices[0].delta.content or ""
-                yield history
-        else:
-            history.append({"role": "assistant", "content": response})
-            print(history)
-            return history
+        history += [{"role": "assistant", "content": ""}]
+        for chunk in response:
+            history[-1]["content"] += chunk.choices[0].delta.content or ""
+            yield history
 
 
 def parse_arguments():
@@ -74,12 +69,14 @@ def main(model_name, api_key):
         chatbot = gr.Chatbot(type="messages")
         user_message = gr.Textbox(label="Type your message here")
         clear = gr.Button("Clear")
+
         user_message.submit(
             fn=tutor.get_user_message,
             inputs=[user_message, chatbot],
             outputs=[user_message, chatbot],
             queue=False,
         ).then(fn=tutor.chat, inputs=chatbot, outputs=chatbot)
+
         clear.click(fn=lambda: None, inputs=None, outputs=chatbot, queue=False)
 
     ui.launch(inbrowser=True)

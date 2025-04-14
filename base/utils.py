@@ -25,3 +25,4 @@ def get_stream_v2(stream_from_api):
         else:
             text += chunk.choices[0].delta.content or ""
         yield text
+    return text
