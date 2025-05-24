@@ -20,6 +20,8 @@ dependencies:
   - sentencepiece
   - pyarrow
   - faiss-cpu
+  - openpyxl
+  - tabulate
   - pip:
     - beautifulsoup4
     - plotly
@@ -48,3 +50,4 @@ dependencies:
     - feedparser
     - twilio
     - pydub
+    - Faker

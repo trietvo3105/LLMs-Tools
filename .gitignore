@@ -1,4 +1,7 @@
 */__pycache__/*
+.vscode
 .env
 *.ipynb
 *static*
+*.csv
+*.xlsx
